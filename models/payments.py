@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean
 from db_connection import Base
 from sqlalchemy.orm import relationship, backref
 import datetime
@@ -16,5 +16,12 @@ class Payments(Base):
     payment_bank_date = Column(DateTime)  # date of bank transfer
     payment_received_date = Column(DateTime, default=datetime.datetime.now, nullable=False)  # when our system got the notification
     payment_processed_date = Column(DateTime)  # date of payment routed to the partner service
+    process_error = Column(Boolean)
     partner = relationship("Partners", backref=backref('payments'))
     payer = relationship("Payers", backref=backref('payments'))
+
+    def as_dict_for_partner(self):
+        return dict(reference_number=self.reference_number,
+                    amount=self.amount,
+                    currency=self.currency,
+                    payment_bank_date=self.payment_bank_date)
